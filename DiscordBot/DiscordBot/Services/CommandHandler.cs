@@ -34,6 +34,7 @@ namespace DiscordBot.Services
 
         private async Task OnMessageReceived(SocketMessage socketMessage)
         {
+            
             if(!(socketMessage is SocketUserMessage message)) return;
             if (message.Source != MessageSource.User) return;
 
