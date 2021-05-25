@@ -54,6 +54,8 @@ namespace DiscordBot
             {
                 services
                 .AddHostedService<CommandHandler>();
+                services
+                .AddHostedService<EventsHandler>();
             })
             .UseConsoleLifetime();
 
