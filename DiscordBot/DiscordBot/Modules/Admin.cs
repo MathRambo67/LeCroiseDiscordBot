@@ -21,7 +21,7 @@ namespace DiscordBot.Modules
             var channelId = !String.IsNullOrEmpty(id) ? Convert.ToUInt64(id) : Context.Channel.Id;
             var Channel = Context.Guild.GetChannel(channelId) as SocketTextChannel;
 
-            var messages = await Channel.GetMessagesAsync(Context.Message, Direction.Before, count).FlattenAsync();
+            var messages = await Channel.GetMessagesAsync(count).FlattenAsync();
             var filteredMessages = messages.Where(x => (DateTimeOffset.UtcNow - x.Timestamp).TotalDays <= 14);
             var resCount = filteredMessages.Count();
 
@@ -38,9 +38,9 @@ namespace DiscordBot.Modules
             else
             {
                 await (Channel as ITextChannel).DeleteMessagesAsync(messages);
-                await ReplyAsync("**Fait !** :ok_hand: ");
+                await ReplyAsync($"** {resCount} messages supprimé(s) dans le canal {Channel.Mention} :wastebasket: !** :ok_hand: ");
                 await Task.Delay(300);
-                var RemoveLast = await Context.Channel.GetMessagesAsync(1).FlattenAsync();
+                var RemoveLast = await Context.Channel.GetMessagesAsync(1, CacheMode.AllowDownload).FlattenAsync();
                 await (Context.Channel as ITextChannel).DeleteMessagesAsync(RemoveLast);
             }
         }
