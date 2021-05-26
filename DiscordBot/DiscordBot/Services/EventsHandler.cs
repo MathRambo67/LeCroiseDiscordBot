@@ -28,6 +28,7 @@ namespace DiscordBot.Services
             //Manage Event 
             _client.UserJoined += OnUserJoin;
             _client.UserLeft += OnUserLeft;
+          
             await _service.AddModulesAsync(Assembly.GetEntryAssembly(), this._provider);
         }
 
@@ -44,5 +45,7 @@ namespace DiscordBot.Services
             await channel.SendMessageAsync($"Welcome {guildUser.Mention} to {channel.Guild.Name}");
 
         }
+
+
     }
 }
