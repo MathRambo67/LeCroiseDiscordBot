@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Commands;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace DiscordBot
     public static class HtmlHelper
     {
 
-        public static EmbedBuilder GetMetaFromUrl(string url)
+        public static EmbedBuilder GetMetaFromUrl(string url, SocketCommandContext context)
         {
             // HTML AGILITY PACK
             HtmlWeb web = new HtmlWeb();
@@ -22,11 +23,10 @@ namespace DiscordBot
             HtmlDocument doc = web.Load(url);
             var steamGame = new SteamGame();
             
-            steamGame.Title = doc.DocumentNode
-                               .SelectSingleNode("//title").InnerText;
+            steamGame.Title = doc.DocumentNode.SelectSingleNode("//title").InnerText;
             steamGame.Description = doc.DocumentNode.SelectSingleNode("//meta[@name='Description']").Attributes["content"].Value.ToString();
-            //steamGame.PriceReal = doc.DocumentNode.SelectSingleNode("//meta[@itemprop='price']").Attributes["content"].Value.ToString();
             steamGame.ImageUrl = doc.DocumentNode.SelectSingleNode("//meta[@name='twitter:image']").Attributes["content"].Value.ToString();
+            
             if (doc.DocumentNode.SelectNodes("//div[@class='game_area_purchase_game_wrapper']") != null)
             {
                 steamGame.Games = new List<SteamGameArea>();
@@ -34,38 +34,61 @@ namespace DiscordBot
                 foreach (var game in divgameArea)
                 {
                     SteamGameArea gameArea = new SteamGameArea();
+                    gameArea.HadReduction = false;
+                    if (game.SelectSingleNode(".//h1") != null)
+                        gameArea.PackageName = game.SelectSingleNode(".//h1").InnerText;
 
-                    if (game.SelectSingleNode("//div[@class='discount_pct']") != null)
+                    if (game.SelectSingleNode(".//div[@class='discount_pct']") != null) 
+                    {  
+                        gameArea.ReductionPercent = game.SelectSingleNode(".//div[@class='discount_pct']").InnerText;
                         gameArea.HadReduction = true;
-                    else 
-                        gameArea.HadReduction = false;
+                    }
+                    if (game.SelectSingleNode(".//div[@class='discount_original_price']") != null)
+                        gameArea.PriceReal = game.SelectSingleNode(".//div[@class='discount_original_price']").InnerText;
+                    if (game.SelectSingleNode(".//div[@class='discount_final_price']") != null)
+                        gameArea.PriceReduction = game.SelectSingleNode(".//div[@class='discount_final_price']").InnerText;
+                    if (game.SelectSingleNode(".//div[@class='game_purchase_price']") != null)
+                    {
+                        gameArea.PriceReal = game.SelectSingleNode(".///div[@class='game_purchase_price']").InnerText;
+                    }
+                    if (String.IsNullOrEmpty(gameArea.PriceReal)) 
+                    {
+                        gameArea.PriceReal = doc.DocumentNode.SelectSingleNode("//meta[@itemprop='price']").Attributes["content"].Value;
+                    } 
 
-                    if (game.SelectSingleNode("//div[@class='discount_pct']") != null)
-                        gameArea.ReductionPercent = game.SelectSingleNode("//div[@class='discount_pct']").InnerText;
-                    if (game.SelectSingleNode("//div[@class='discount_original_price']") != null)
-                        gameArea.PriceReal = game.SelectSingleNode("//div[@class='discount_original_price']").InnerText;
-                    if (game.SelectSingleNode("//div[@class='discount_final_price']") != null)
-                        gameArea.PriceReduction = game.SelectSingleNode("//div[@class='discount_final_price']").InnerText;
+
+                    steamGame.Games.Add(gameArea);
                 }
               
             }
-            return FormatMetaToEmbed(steamGame);
+            return FormatMetaToEmbed(steamGame, context, url) ;
         }
 
-        public static EmbedBuilder FormatMetaToEmbed(SteamGame steamGame)
+        public static EmbedBuilder FormatMetaToEmbed(SteamGame steamGame, SocketCommandContext context, string url)
         {
             EmbedBuilder eb = new EmbedBuilder();
             eb.WithTitle($"{steamGame.Title}")
               .WithDescription($"{steamGame.Description}")
-              .WithThumbnailUrl($"{steamGame.ImageUrl}");
+              .WithImageUrl($"{steamGame.ImageUrl}")
+              .WithUrl(url)
+              //.WithThumbnailUrl($"");
+              .WithAuthor(context.Client.CurrentUser)
+              .WithColor(Color.DarkBlue);
             foreach (var game in steamGame.Games)
-            {
+              {
+                eb.AddField($"{game.PackageName}", "\u200b");
                 if (!game.HadReduction)
+                {
+
                     eb.AddField("**Prix **", $"{game.PriceReal}", true);
+                }
                 else
-                    eb.AddField("**Prix **", $"--{game.PriceReal}-- **{game.PriceReduction}**", true);
-                eb.AddField("**Reduction**", $"*{game.ReductionPercent}*", true);
-                
+                {
+                    eb.AddField("**Prix **", $"> ~~ {game.PriceReal} **{game.PriceReduction}**~~", true);
+                    eb.AddField("**Reduction**", $" > {game.ReductionPercent} ", true);
+                    eb.AddField("\u200b", "\u200b", false);
+                }
+
             }
             return eb;
         }
@@ -83,6 +106,7 @@ namespace DiscordBot
 
     public class SteamGameArea
     {
+        public string PackageName { get; set; }
         public string PriceReal { get; set; }
         public string PriceReduction { get; set; }
         public bool HadReduction { get; set; }

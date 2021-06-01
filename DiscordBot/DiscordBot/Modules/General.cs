@@ -21,8 +21,8 @@ namespace DiscordBot.Modules
         public async Task SteamAsync(string id)
         {
             var url = $"https://store.steampowered.com/app/{id}";
-            var meta = HtmlHelper.GetMetaFromUrl(url);
-            await ReplyAsync(embed: meta.Build());
+            var meta = HtmlHelper.GetMetaFromUrl(url, Context);
+            await ReplyAsync(":thumbsup::thumbsup: ", embed: meta.Build()) ;
         }
 
 
