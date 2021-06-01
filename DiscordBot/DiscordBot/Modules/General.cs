@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using DiscordBot.Tools;
 
 namespace DiscordBot.Modules
 {
@@ -21,7 +22,7 @@ namespace DiscordBot.Modules
         public async Task SteamAsync(string id)
         {
             var url = $"https://store.steampowered.com/app/{id}";
-            var meta = HtmlHelper.GetMetaFromUrl(url, Context);
+            var meta = SteamHtmlEmbed.GetMetaFromUrl(url, Context);
             await ReplyAsync(":thumbsup::thumbsup: ", embed: meta.Build()) ;
         }
 
