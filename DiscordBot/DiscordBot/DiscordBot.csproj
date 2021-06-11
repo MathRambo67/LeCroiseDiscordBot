@@ -12,10 +12,4 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.11.33" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
