@@ -10,6 +10,7 @@ using Discord.Commands;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using DiscordBot.Services;
+using Infrastructure.Services;
 
 namespace DiscordBot
 {
@@ -54,7 +55,9 @@ namespace DiscordBot
             {
                 services
                 .AddHostedService<CommandHandler>()
-                .AddHostedService<EventsHandler>();
+                .AddHostedService<EventsHandler>()
+                .AddSingleton<ServerService>()
+                .AddSingleton<UserService>();
                 
             })
             .UseConsoleLifetime();

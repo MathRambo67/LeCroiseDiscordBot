@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DiscordBot
+namespace DiscordBot.Tools
 {
-    public static class HtmlHelper
+    public static class SteamHtmlEmbed
     {
 
         public static EmbedBuilder GetMetaFromUrl(string url, SocketCommandContext context)
@@ -35,18 +35,22 @@ namespace DiscordBot
                 {
                     SteamGameArea gameArea = new SteamGameArea();
                     gameArea.HadReduction = false;
+                    //Title of game area wrapper ( Game package ) 
                     if (game.SelectSingleNode(".//h1") != null)
                         gameArea.PackageName = game.SelectSingleNode(".//h1").InnerText;
-
-                    if (game.SelectSingleNode(".//div[@class='discount_pct']") != null) 
-                    {  
+                    //Looking if some reduction is apply for this one
+                    if (game.SelectSingleNode(".//div[@class='discount_pct']") != null)
+                    {
                         gameArea.ReductionPercent = game.SelectSingleNode(".//div[@class='discount_pct']").InnerText;
                         gameArea.HadReduction = true;
                     }
+                    //Getting Price if reduction
                     if (game.SelectSingleNode(".//div[@class='discount_original_price']") != null)
                         gameArea.PriceReal = game.SelectSingleNode(".//div[@class='discount_original_price']").InnerText;
                     if (game.SelectSingleNode(".//div[@class='discount_final_price']") != null)
                         gameArea.PriceReduction = game.SelectSingleNode(".//div[@class='discount_final_price']").InnerText;
+                    //TODO Update this methode to only use one of these conditions
+                    //In this case we don't have any return from the div "game_purchase_price" we will use meta price to not send empty/null value
                     if (game.SelectSingleNode(".//div[@class='game_purchase_price']") != null)
                     {
                         gameArea.PriceReal = game.SelectSingleNode(".///div[@class='game_purchase_price']").InnerText;
@@ -71,7 +75,6 @@ namespace DiscordBot
               .WithDescription($"{steamGame.Description}")
               .WithImageUrl($"{steamGame.ImageUrl}")
               .WithUrl(url)
-              //.WithThumbnailUrl($"");
               .WithAuthor(context.Client.CurrentUser)
               .WithColor(Color.DarkBlue);
             foreach (var game in steamGame.Games)

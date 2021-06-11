@@ -14,35 +14,37 @@ namespace DiscordBot.Services
 {
     class CommandHandler : InitializedService
     {
-        private readonly IServiceProvider provider;
-        private readonly DiscordSocketClient client;
-        private readonly CommandService service;
-        private readonly IConfiguration configuration;
+        private readonly IServiceProvider _provider;
+        private readonly DiscordSocketClient _client;
+        private readonly CommandService _service;
+        private readonly IConfiguration _configuration;
         public CommandHandler(IServiceProvider provider, DiscordSocketClient client, CommandService service, IConfiguration configuration)
         {
-            this.provider = provider;
-            this.client = client;
-            this.service = service;
-            this.configuration = configuration;
+            _provider = provider;
+            _client = client;
+            _service = service;
+            _configuration = configuration;
         }
 
         public override async Task InitializeAsync(CancellationToken cancellationToken)
         {
-            this.client.MessageReceived += OnMessageReceived;
-            await this.service.AddModulesAsync(Assembly.GetEntryAssembly(), this.provider);
+            _client.MessageReceived += OnMessageReceived;
+            await _service.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
         }
 
         private async Task OnMessageReceived(SocketMessage socketMessage)
         {
             
-            if(!(socketMessage is SocketUserMessage message)) return;
+            
+            
+            if (!(socketMessage is SocketUserMessage message)) return;
             if (message.Source != MessageSource.User) return;
 
             var argPos = 0;
-            if (!message.HasStringPrefix(this.configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(this.client.CurrentUser, ref argPos)) return;
+            if (!message.HasStringPrefix(_configuration["Prefix"], ref argPos) && !message.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
 
-            var context = new SocketCommandContext(this.client, message);
-            await this.service.ExecuteAsync(context, argPos, this.provider);
+            var _context = new SocketCommandContext(_client, message);
+            await this._service.ExecuteAsync(_context, argPos, this._provider);
         }
     }
 }
