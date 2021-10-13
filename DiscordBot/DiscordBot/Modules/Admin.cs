@@ -28,9 +28,9 @@ namespace DiscordBot.Modules
             if (resCount == 0)
             {
                 embed.WithTitle("Erreur durant la suppression")
-                     .WithDescription("Il n'y a aucun message à supprimé")
+                     .WithDescription("Il n'y a aucun message à supprimer")
                      .WithThumbnailUrl(Context.Client.CurrentUser.GetAvatarUrl(ImageFormat.Auto, 512))
-                     .AddField($@"Commande demandé par ", $@"{Context.User.Mention}", true)
+                     .AddField($@"Commande demandée par ", $@"{Context.User.Mention}", true)
                      .WithColor(Color.Orange);
 
                 await ReplyAsync(embed: embed.Build());
@@ -47,6 +47,8 @@ namespace DiscordBot.Modules
         [Command("info")]
         public async Task ServerInfo()
         {
+             var RemoveLast = await Context.Channel.GetMessagesAsync(1, CacheMode.AllowDownload).FlattenAsync();
+             await (Context.Channel as ITextChannel).DeleteMessagesAsync(RemoveLast);
             var embed = new EmbedBuilder();
 
             var userCount = Context.Guild.Users.Count.ToString();
@@ -62,8 +64,6 @@ namespace DiscordBot.Modules
                 .WithColor(Discord.Color.Blue);
 
             await ReplyAsync(embed: embed.Build());
-
-
         }
     }
 }
