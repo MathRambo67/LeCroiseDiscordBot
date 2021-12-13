@@ -9,6 +9,7 @@ namespace Infrastructure.Models
 
         public ulong UserId { get; set; }
         public ulong UserName { get; set; }
+        
 
 
     }

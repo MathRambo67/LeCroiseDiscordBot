@@ -12,7 +12,7 @@ namespace DiscordBot.Modules
     public class GameInvites : ModuleBase<SocketCommandContext>
     {
 
-        [Command("create")]
+       /* [Command("create")]
         public async Task CreateInvite()
         {
             var embed = new EmbedBuilder();
@@ -21,6 +21,6 @@ namespace DiscordBot.Modules
            //     .WithField("")
 
         }
-
+        */
     }
 }
